@@ -18,4 +18,8 @@ Usage of /var/folders/1x/7k2pwl1d5fb9vms2t32fxw4c0000gn/T/go-build308880747/b001
         Password to login to the host. (default "admin")
   -u string
         username to login to the host. (default "admin")
+
+johnny@Host-By f5ltmx % ./ltmx -f ./create.xlsx  
 ```
+# view excel sheet
+![img](./xlsx.png)
