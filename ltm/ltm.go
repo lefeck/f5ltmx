@@ -34,6 +34,7 @@ type VirtualServer struct {
 	PoolMembers       string `json:"pool_members" xlsx:"pool_members"`
 	SnatType          string `json:"snat_type" xlsx:"snat_type"`
 	SnatPool          string `json:"snatpool" xlsx:"snat_pool"`
+	IRules            string `json:"irules" xlsx:"irules"`
 }
 
 func init() {
@@ -185,6 +186,8 @@ func StructToStruct(server ltm.VirtualServer, snatpoolname string, poolmembers [
 	poolName := StringSplitSubString(server.Pool)
 	destination := StringSplitSubString(server.Destination)
 	poolMembers := SliceToString(poolmembers)
+	irulescommon := SliceToString(server.Rules)
+	irules := StringSplitSubString(irulescommon)
 
 	return VirtualServer{
 		Partition:         server.Partition,
@@ -197,5 +200,6 @@ func StructToStruct(server ltm.VirtualServer, snatpoolname string, poolmembers [
 		PoolMembers:       poolMembers,
 		SnatPool:          snatpoolname,
 		SnatType:          server.SourceAddressTranslation.Type,
+		IRules:            irules,
 	}
 }
