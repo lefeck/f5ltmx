@@ -35,6 +35,7 @@ type VirtualServer struct {
 	SnatType          string `json:"snat_type" xlsx:"snat_type"`
 	SnatPool          string `json:"snatpool" xlsx:"snat_pool"`
 	IRules            string `json:"irules" xlsx:"irules"`
+	Monitors          string `json:"monitors" xlsx:"monitors"`
 }
 
 func init() {
@@ -69,6 +70,10 @@ func (vs VirtualServer) Exec(client *f5.Client) (err error) {
 	if err := WriteProfiesToXlsx(file, ltmclient); err != nil {
 		log.Fatal(err)
 	}
+	if err := WriteMonitorsToXlsx(file, ltmclient); err != nil {
+		log.Fatal(err)
+	}
+
 	return nil
 }
 
@@ -111,7 +116,7 @@ func WriteProfiesToXlsx(file string, ltmclient ltm.LTM) error {
 		for _, profile := range profiles {
 			proFiles = append(proFiles, profile.Name)
 		}
-		CreateExcel(files, proFiles, key)
+		CreateExcelSlice(files, proFiles, key)
 	}
 	if err := files.SaveAs(file); err != nil {
 		log.Fatal(err)
@@ -119,7 +124,33 @@ func WriteProfiesToXlsx(file string, ltmclient ltm.LTM) error {
 	return nil
 }
 
-func CreateExcel(f *excelize.File, src []string, i int) error {
+func WriteMonitorsToXlsx(file string, ltmclient ltm.LTM) error {
+	files, err := excelize.OpenFile(file)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer files.Close()
+
+	poollist, _ := ltmclient.Pool().ListAll()
+	for key, v := range poollist.Items {
+		CreateExcelString(files, v.Monitor, key)
+	}
+
+	if err := files.SaveAs(file); err != nil {
+		log.Fatal(err)
+	}
+	return nil
+}
+
+func CreateExcelString(f *excelize.File, src string, i int) error {
+	str := StringSplitSubString(src)
+	if err := f.SetCellValue(SheetName, fmt.Sprintf("%s%d", "M", i+2), str); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CreateExcelSlice(f *excelize.File, src []string, i int) error {
 	str := SliceToString(src)
 	if err := f.SetCellValue(SheetName, fmt.Sprintf("%s%d", "G", i+2), str); err != nil {
 		return err
