@@ -44,7 +44,6 @@ func init() {
 	flag.StringVar(&file, "f", "/tmp/ltm.xlsx", "Specifies an alternative configuration file.")
 
 	flag.Parse()
-	go CreateXlsx()
 }
 
 func NewF5Client() (*f5.Client, error) {
@@ -120,15 +119,6 @@ func WriteProfiesToXlsx(file string, ltmclient ltm.LTM) error {
 	return nil
 }
 
-func CreateXlsx() {
-	xlsx := excelize.NewFile()
-	index := xlsx.NewSheet(SheetName)
-	xlsx.SetActiveSheet(index)
-	if err := xlsx.SaveAs(file); err != nil {
-		fmt.Println(err)
-	}
-}
-
 func CreateExcel(f *excelize.File, src []string, i int) error {
 	str := SliceToString(src)
 	if err := f.SetCellValue(SheetName, fmt.Sprintf("%s%d", "G", i+2), str); err != nil {
@@ -138,10 +128,10 @@ func CreateExcel(f *excelize.File, src []string, i int) error {
 }
 
 func WriteXlsx(sheet string, records interface{}) *excelize.File {
-	xlsx := excelize.NewFile()    // new file
-	index := xlsx.NewSheet(sheet) // new sheet
-	xlsx.SetActiveSheet(index)    // set active (default) sheet
-	firstCharacter := 65          // start from 'A' line
+	xlsx := excelize.NewFile()
+	index := xlsx.NewSheet(sheet)
+	xlsx.SetActiveSheet(index)
+	firstCharacter := 65
 	t := reflect.TypeOf(records)
 
 	if t.Kind() != reflect.Slice {
